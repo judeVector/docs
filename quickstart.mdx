@@ -1,80 +1,145 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get started with Sendryx API in minutes"
 ---
 
 ## Get started in three steps
 
-Get your documentation site running locally and make your first customization.
+Start integrating Sendryx into your application and send your first USDC payment.
 
-### Step 1: Set up your local environment
+### Step 1: Create your account and API key
 
 <AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+  <Accordion title="Sign up for Sendryx" icon="user-plus">
+    Create your Sendryx account to get started with the API.
+
+    1. Sign up using the [Sign Up endpoint](/api-reference/authentication/signup) or visit our [dashboard](https://app.sendryx.xyz/signup)
+    2. Verify your email address using the link sent to your inbox
+    3. Log in to receive your access token
+
+    ```http
+    POST /auth/login
+    Content-Type: application/json
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
+    {
+      "email": "developer@example.com",
+      "password": "SecurePassword123!"
+    }
+    ```
+
+    <Tip>
+      Keep your access token secure - you'll need it to create API keys!
+    </Tip>
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+  <Accordion title="Create your API key" icon="key">
+    Generate an API key to authenticate your API requests.
+
+    1. Use your access token to call the [Create API Key endpoint](/api-reference/developer-portal/create-api-key):
+
+    ```http
+    POST /v1/developer/api-keys
+    Authorization: Bearer {access_token}
+    Content-Type: application/json
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
+    {
+      "name": "My Production API Key"
+    }
+    ```
+
+    2. Save your `keyId` and `secret` Immediately - the secret won't be shown again!
+    3. Store your credentials securely using environment variables
+
+    <Warning>
+      Never commit your API secret to a version control system. Use environment variables or a secrets manager.
+    </Warning>
   </Accordion>
 </AccordionGroup>
 
-### Step 2: Deploy your changes
+### Step 2: Make your first API call
 
 <AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+  <Accordion title="Send your first payment" icon="paper-plane">
+    Now let's send USDC to a Solana wallet address.
+
+    1. Use your API key to authenticate the request:
+
+    ```http
+    POST /v1/payments/send-wallet
+    X-Sendryx-Key: pk_live_your_key_id
+    X-Sendryx-Secret: sk_live_your_secret
+    Content-Type: application/json
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    {
+      "walletAddress": "SolanaWalletAddress...",
+      "amount": 10.00,
+      "purpose": "Test payment"
+    }
+    ```
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    2. Check the response for transaction details:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
+    ```json
+    {
+      "id": "transaction-uuid",
+      "status": "completed",
+      "amount": 10.00,
+      "transactionSignature": "signature_on_solana",
+      "completedAt": "2024-01-15T10:30:05Z"
+    }
+    ```
+
+    <Tip>
+      Start with small amounts for testing. Make sure you have sufficient USDC balance in your wallet!
+    </Tip>
+  </Accordion>
+  <Accordion title="Try with cURL" icon="code">
+    Here's a complete example using cURL:
+
+    ```bash
+    curl -X POST https://api.sendryx.xyz/v1/payments/send-wallet \
+      -H "X-Sendryx-Key: pk_live_your_key_id" \
+      -H "X-Sendryx-Secret: sk_live_your_secret" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "walletAddress": "SolanaWalletAddress...",
+        "amount": 10.00,
+        "purpose": "Test payment"
+      }'
+    ```
   </Accordion>
 </AccordionGroup>
 
-### Step 3: Go live
+### Step 3: Explore the API
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
+<Accordion title="Next steps" icon="rocket">
+  Now that you've made your first payment, explore these powerful features:
+
+  - **Payment Links**: [Create shareable payment links](/api-reference/payment-links/create-payment-link) for easy payment collection
+  - **Username Transfers**: [Send money by username](/api-reference/payments/send-money-by-username) instead of wallet addresses
+  - **Bank Transfers**: [Convert USDC to local currency](/api-reference/payments/transfer-to-bank) and send to bank accounts
+  - **Webhooks**: [Set up webhooks](/api-reference/developer-portal/create-webhook) to receive real-time payment notifications
+  - **Transaction History**: [View your transaction history](/api-reference/payments/get-transaction-history) and filter by type
 </Accordion>
 
-## Next steps
-
-Now that you have your docs running, explore these key features:
+## Common use cases
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Cross-border remittances" icon="globe" href="/api-reference/payments/transfer-to-bank">
+    Send money internationally by converting USDC to local currency and transferring to bank accounts.
+  </Card>
+  <Card title="Automated payroll" icon="users" href="/api-reference/payroll/create-payroll-run">
+    Schedule and execute recurring payroll payments for your team using USDC.
+  </Card>
+  <Card title="Payment collection" icon="link" href="/api-reference/payment-links/create-payment-link">
+    Generate shareable payment links for easy payment collection from customers.
+  </Card>
+  <Card title="Real-time notifications" icon="bell" href="/api-reference/webhooks/introduction">
+    Set up webhooks to receive instant notifications when payments are completed or fail.
+  </Card>
 </CardGroup>
 
+## Need help?
+
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  **Questions?** Check out our [full API reference](/api-reference/introduction), [authentication guide](/api-reference/authentication/introduction), or contact [support@sendryx.](mailto:support@sendryx.xyz)com.
 </Note>
